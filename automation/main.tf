@@ -1,0 +1,1 @@
+Write a terraform template to create an EC2 instance using terraform along with security group to allow only ssh and http login. Make a seperate file for variables with which contains at least 2 mandatory variables instance_count (number of instances to launch), and instance_name  such that when instance gets created, the name of the nth instance should be "<instance_name>-n"
