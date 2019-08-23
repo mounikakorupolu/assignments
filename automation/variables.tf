@@ -1,3 +1,3 @@
-variable "ami_name" {}
+variable 
 variable "ami_id" {}
-variable "ami_key_pair_name" {}
+
