@@ -1,0 +1,121 @@
+1) 
+
+mkdir images
+ cd images
+ mkdir web
+ cd web
+
+2) Inside web directory create an index.html file
+
+vi index.html
+
+<h1>Hello</h1>
+  
+ 3)  Outside web directory Dockerfile and nginx.conf file are created
+
+
+vi Dockerfile
+
+(FROM ubuntu
+
+USER root
+
+RUN apt-get update
+RUN apt-get install -y nginx nodejs
+
+# Remove the default Nginx configuration file
+RUN rm -v /etc/nginx/nginx.conf
+
+# Copy a configuration file from the current directory
+ADD nginx.conf /etc/nginx/
+
+ADD web /usr/share/nginx/html/
+ADD web /var/www/html/
+
+# Append "daemon off;" to the beginning of the configuration
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+
+# Expose ports
+EXPOSE 80
+
+# Set the default command to execute
+# when creating a new container
+CMD service nginx start)
+
+ vi nginx.conf
+
+(worker_processes 1;
+
+events { worker_connections 1024; }
+
+http {
+    include    mime.types;
+    sendfile on;
+    server {
+        root /usr/share/nginx/html/;
+        index index.html;
+        server_name localhost;
+        listen 80;
+    }
+})
+
+ 4) Inside web directory create mimi.types file
+
+ vi mimi.types
+    
+types {
+  text/html                             html htm shtml;
+}
+
+ 5) go to the directory where Dockerfile is located    
+
+ 6) Build the image 
+
+sudo docker build -t my_nginx .
+
+ 7) Run the container with external port 8080 and internal port 80 
+
+ sudo docker run -it -p 8080:80 --name nginx_container my_nginx
+
+ 8) Getting into container and installing nano
+
+ sudo docker exec -it 393e1ac7206d /bin/sh                   
+# apt-get install nano
+# exit
+
+ 9) 
+
+curl http://localhost:8080 
+
+There is no change even after installing nano in container
+
+ 10) 
+
+Push custom image into docker hub
+
+create an account in docker hub, also a repo to be created
+
+ sudo docker login
+ sudo docker tag my_nginx mounika457/mouni:tagname   
+ sudo docker push mounika457/mouni:tagname 
+
+Push custom image into Google Cloud Registry
+
+Authenticate to container registry
+---> gcloud auth configure-docker
+Pushing image
+---> sudo docker tag my_nginx gcr.io/pe-training/my_nginx
+---> sudo docker push gcr.io/pe-training/my_nginx
+
+Push custom image into Elastic Cloud Registry
+
+Create repository in ECR
+Get auth token 
+---> aws ecr get-authorization-token --region us-east-1 --output text \
+--query authorizationData[].authorizationToken | base64 -d | cut -d: -f2
+Logging in
+---> sudo docker login -u AWS 488599217855.dkr.ecr.us-east-1.amazonaws.com/
+Pushing image
+---> sudo docker tag my_nginx 488599217855.dkr.ecr.us-east-1.amazonaws.com/my_nginx
+---> sudo docker push 488599217855.dkr.ecr.us-east-1.amazonaws.com/my_nginx
+
